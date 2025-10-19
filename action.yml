@@ -1,4 +1,4 @@
-name: 'Autoversion'
+name: 'Git-Autoversion'
 description: 'Automatically generate semantic versions based on git repository state'
 author: 'Trond Hindenes'
 
