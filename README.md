@@ -6,13 +6,14 @@ Automatically generate semantic versions in your GitHub Actions workflows based 
 
 - 🚀 Automatic version calculation based on commits and tags
 - ⚡ Fast execution using pre-built binaries
-- 🏷️ Support for both `main` and `master` branches
 - 🔀 Feature branch prerelease versions
 - 🎯 Multiple output formats (full version, major, minor, patch)
 - ⚙️ Configurable via `.autoversion.yaml`
 - 📦 No external dependencies required
 
 ## Usage
+See https://github.com/trondhindenes/autoversion for more details
+
 
 ### Basic Example
 
