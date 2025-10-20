@@ -118,10 +118,36 @@ runs:
 
         # Execute autoversion and capture outputs
         if [ "$FAIL_ON_ERROR" = "true" ]; then
-          /tmp/autoversion $CONFIG_ARG
+          VERSION=$(/tmp/autoversion $CONFIG_ARG)
         else
-          /tmp/autoversion $CONFIG_ARG || true
+          VERSION=$(/tmp/autoversion $CONFIG_ARG || true)
         fi
+
+        # Parse version components
+        # Format can be: 1.0.0 or 1.0.0-pre.0 or 1.0.0-feature.1
+
+        # Extract base version (before any -)
+        BASE_VERSION="${VERSION%%-*}"
+
+        # Split major.minor.patch
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+
+        # Check if there's a prerelease part
+        if [[ "$VERSION" == *"-"* ]]; then
+          PRERELEASE="${VERSION#*-}"
+          IS_PRERELEASE="true"
+        else
+          PRERELEASE=""
+          IS_PRERELEASE="false"
+        fi
+
+        # Set GitHub Action outputs
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+        echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
+        echo "patch=$PATCH" >> "$GITHUB_OUTPUT"
+        echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+        echo "is-prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
 
         # Clean up
         rm -f /tmp/autoversion /tmp/autoversion.tar.gz
