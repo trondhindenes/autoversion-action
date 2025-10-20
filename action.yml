@@ -2,6 +2,10 @@ name: 'Git-Autoversion'
 description: 'Automatically generate semantic versions based on git repository state'
 author: 'Trond Hindenes'
 
+runs:
+  using: "docker"
+  image: "docker://ghcr.io/trondhindenes/autoversion:latest-action"
+
 branding:
   icon: 'hash'
   color: 'blue'
