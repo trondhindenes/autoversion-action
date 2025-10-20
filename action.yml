@@ -54,7 +54,7 @@ runs:
         # Map architecture names to GitHub release naming convention
         case "$ARCH" in
           x86_64)
-            ARCH="x86_64"
+            ARCH="amd64"
             ;;
           aarch64|arm64)
             ARCH="aarch64"
@@ -85,16 +85,23 @@ runs:
 
         echo "Using autoversion version: $RELEASE_TAG"
 
-        # Construct the binary name based on OS and architecture
-        BINARY_NAME="autoversion-${OS}-${ARCH}"
-        DOWNLOAD_URL="https://github.com/trondhindenes/autoversion/releases/download/${RELEASE_TAG}/${BINARY_NAME}"
+        # Construct the archive name based on OS and architecture
+        ARCHIVE_NAME="autoversion-${OS}-${ARCH}.tar.gz"
+        DOWNLOAD_URL="https://github.com/trondhindenes/autoversion/releases/download/${RELEASE_TAG}/${ARCHIVE_NAME}"
 
         echo "Downloading from: $DOWNLOAD_URL"
 
-        # Download the binary
-        curl -L -o /tmp/autoversion "$DOWNLOAD_URL"
+        # Download the archive
+        curl -L -o /tmp/autoversion.tar.gz "$DOWNLOAD_URL"
         if [ $? -ne 0 ]; then
-          echo "Error: Failed to download autoversion binary"
+          echo "Error: Failed to download autoversion archive"
+          exit 1
+        fi
+
+        # Extract the binary
+        tar -xzf /tmp/autoversion.tar.gz -C /tmp/
+        if [ $? -ne 0 ]; then
+          echo "Error: Failed to extract autoversion archive"
           exit 1
         fi
 
@@ -117,4 +124,4 @@ runs:
         fi
 
         # Clean up
-        rm -f /tmp/autoversion
+        rm -f /tmp/autoversion /tmp/autoversion.tar.gz
