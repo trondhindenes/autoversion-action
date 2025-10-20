@@ -2,10 +2,6 @@ name: 'Git-Autoversion'
 description: 'Automatically generate semantic versions based on git repository state'
 author: 'Trond Hindenes'
 
-runs:
-  using: "docker"
-  image: "docker://ghcr.io/trondhindenes/autoversion:latest-action"
-
 branding:
   icon: 'hash'
   color: 'blue'
@@ -68,7 +64,7 @@ runs:
           -v "$TEMP_OUTPUT:$TEMP_OUTPUT" \
           -w /github/workspace \
           -e GITHUB_OUTPUT="$TEMP_OUTPUT" \
-          ghcr.io/trondhindenes/autoversion:${IMAGE_TAG}-action \
+          ghcr.io/trondhindenes/autoversion:latest-action \
           "${{ inputs.config }}" \
           "${{ inputs.fail-on-error }}"
 
