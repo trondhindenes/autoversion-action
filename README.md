@@ -5,7 +5,7 @@ Automatically generate semantic versions in your GitHub Actions workflows based 
 ## Features
 
 - 🚀 Automatic version calculation based on commits and tags
-- ⚡ Fast execution using pre-built Docker images
+- ⚡ Fast execution using pre-built binaries
 - 🏷️ Support for both `main` and `master` branches
 - 🔀 Feature branch prerelease versions
 - 🎯 Multiple output formats (full version, major, minor, patch)
@@ -223,9 +223,13 @@ See the [main README](README.md) for full configuration documentation.
     fetch-depth: 0  # This is required!
 ```
 
-### Docker Availability
+### Platform Support
 
-The GitHub Action runs autoversion in a Docker container, so **Docker must be available** in your runner environment. All GitHub-hosted runners (ubuntu-latest, etc.) include Docker by default. If using self-hosted runners, ensure Docker is installed and accessible.
+The GitHub Action downloads platform-specific binaries from GitHub releases. Supported platforms:
+- Linux (x86_64, aarch64)
+- macOS (x86_64, aarch64/arm64)
+
+All GitHub-hosted runners are supported. For self-hosted runners, ensure your platform is supported.
 
 ## How It Works
 
@@ -264,46 +268,37 @@ Check out the [examples directory](examples/workflows/) for complete workflow ex
 
 See [LICENSE](LICENSE) file in the main repository.
 
-## Docker Images
+## Binary Releases
 
-The action uses pre-built Docker images for fast execution:
+The action downloads pre-built binaries from GitHub releases for fast execution. Binaries are automatically built and published for each release with platform-specific versions:
 
-- **Action Image**: `ghcr.io/trondhindenes/autoversion:latest-action`
-- **CLI Image**: `ghcr.io/trondhindenes/autoversion:latest`
-
-Both images are automatically built and published on each release with versioned tags:
-- `ghcr.io/trondhindenes/autoversion:1.0.0-action`
-- `ghcr.io/trondhindenes/autoversion:1.0-action`
-- `ghcr.io/trondhindenes/autoversion:1-action`
-- `ghcr.io/trondhindenes/autoversion:latest-action`
+- `autoversion-linux-x86_64`
+- `autoversion-linux-aarch64`
+- `autoversion-darwin-x86_64`
+- `autoversion-darwin-aarch64`
 
 ### Version Pinning
 
 You can control which version of autoversion to use:
 
 ```yaml
-# Use latest major version (recommended - gets updates)
+# Use latest version (recommended - gets updates)
 uses: trondhindenes/autoversion@v1
 with:
-  version: '1'  # Uses ghcr.io/trondhindenes/autoversion:1-action
-
-# Use specific minor version
-uses: trondhindenes/autoversion@v1
-with:
-  version: '1.0'  # Uses ghcr.io/trondhindenes/autoversion:1.0-action
+  version: 'latest'  # Downloads latest release
 
 # Use exact version (most stable)
 uses: trondhindenes/autoversion@v1
 with:
-  version: '1.0.5'  # Uses ghcr.io/trondhindenes/autoversion:1.0.5-action
+  version: '1.0.5'  # Downloads v1.0.5 release
 
-# Use latest (not recommended for production)
+# Use version with v prefix
 uses: trondhindenes/autoversion@v1
 with:
-  version: 'latest'  # Uses ghcr.io/trondhindenes/autoversion:latest-action
+  version: 'v1.0.5'  # Downloads v1.0.5 release
 ```
 
-**Recommendation**: Use `version: '1'` (default) to automatically get patch updates while staying on the same major version.
+**Recommendation**: Use `version: '1'` or `version: 'latest'` (default) to automatically get the latest stable release.
 
 ## Support
 
