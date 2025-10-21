@@ -37,7 +37,7 @@ jobs:
 
       - name: Calculate version
         id: version
-        uses: trondhindenes/autoversion@v1
+        uses: trondhindenes/autoversion-action@v1
 
       - name: Build with version
         run: |
@@ -56,7 +56,7 @@ steps:
 
   - name: Calculate version
     id: version
-    uses: trondhindenes/autoversion@v1
+    uses: trondhindenes/autoversion-action@v1
     with:
       config: '.autoversion.yaml'
 
@@ -80,7 +80,7 @@ steps:
 
   - name: Calculate version with specific autoversion version
     id: version
-    uses: trondhindenes/autoversion@v1
+    uses: trondhindenes/autoversion-action@v1
     with:
       version: '1.0.5'  # Use a specific version of autoversion
 ```
@@ -96,7 +96,7 @@ steps:
 
   - name: Calculate version
     id: version
-    uses: trondhindenes/autoversion@v1
+    uses: trondhindenes/autoversion-action@v1
 
   - name: Create tag
     if: github.ref == 'refs/heads/main'
@@ -125,7 +125,7 @@ steps:
 
   - name: Calculate version
     id: version
-    uses: trondhindenes/autoversion@v1
+    uses: trondhindenes/autoversion-action@v1
 
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v3
@@ -153,7 +153,7 @@ steps:
 
   - name: Calculate version
     id: version
-    uses: trondhindenes/autoversion@v1
+    uses: trondhindenes/autoversion-action@v1
 
   - name: Deploy to production
     if: steps.version.outputs.is-prerelease == 'false'
