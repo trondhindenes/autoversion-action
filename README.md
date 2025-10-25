@@ -69,6 +69,41 @@ steps:
       echo "Is prerelease: ${{ steps.version.outputs.is-prerelease }}"
 ```
 
+### With Configuration Flags
+
+You can override specific configuration values using config flags without modifying the configuration file:
+
+```yaml
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name: Calculate version with config overrides
+    id: version
+    uses: trondhindenes/autoversion-action@v1
+    with:
+      config-flags: |
+        mainBranchBehavior=pre
+        tagPrefix=v
+        initialVersion=2.0.0
+
+  - name: Use version
+    run: |
+      echo "Version: ${{ steps.version.outputs.version }}"
+```
+
+You can also use comma-separated flags:
+
+```yaml
+- name: Calculate version with config overrides
+  id: version
+  uses: trondhindenes/autoversion-action@v1
+  with:
+    config-flags: 'mainBranchBehavior=pre,tagPrefix=v'
+```
+
 ### Pin to Specific Autoversion Version
 
 ```yaml
@@ -173,6 +208,7 @@ steps:
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `config` | Path to configuration file | No | `.autoversion.yaml` |
+| `config-flags` | Configuration flags to override settings (can be multiple, separated by newlines or commas) | No | `""` |
 | `fail-on-error` | Whether to fail the action if version calculation fails | No | `true` |
 | `version` | Specific version of autoversion to use (e.g., `"1"`, `"1.0"`, `"1.0.0"`, or `"latest"`) | No | `"1"` |
 

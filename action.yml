@@ -11,6 +11,10 @@ inputs:
     description: 'Path to configuration file (default: .autoversion.yaml)'
     required: false
     default: ''
+  config-flags:
+    description: 'Configuration flags to pass to autoversion (can be multiple, separated by newlines or commas)'
+    required: false
+    default: ''
   fail-on-error:
     description: 'Whether to fail the action if version calculation fails'
     required: false
@@ -114,13 +118,29 @@ runs:
           CONFIG_ARG="--config ${{ inputs.config }}"
         fi
 
+        # Handle config flags (can be multiple)
+        CONFIG_FLAGS_ARG=""
+        if [ -n "${{ inputs.config-flags }}" ]; then
+          # Replace commas and newlines with spaces, then process each flag
+          FLAGS_INPUT="${{ inputs.config-flags }}"
+          # Replace commas with newlines, then filter out empty lines
+          FLAGS_LIST=$(echo "$FLAGS_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+
+          # Build the config flags argument string
+          while IFS= read -r flag; do
+            if [ -n "$flag" ]; then
+              CONFIG_FLAGS_ARG="$CONFIG_FLAGS_ARG --config-flag $flag"
+            fi
+          done <<< "$FLAGS_LIST"
+        fi
+
         FAIL_ON_ERROR="${{ inputs.fail-on-error }}"
 
         # Execute autoversion and capture outputs
         if [ "$FAIL_ON_ERROR" = "true" ]; then
-          VERSION=$(/tmp/autoversion $CONFIG_ARG)
+          VERSION=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG)
         else
-          VERSION=$(/tmp/autoversion $CONFIG_ARG || true)
+          VERSION=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG || true)
         fi
 
         # Parse version components
