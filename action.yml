@@ -25,9 +25,18 @@ inputs:
     default: '1'
 
 outputs:
-  version:
+  semver:
     description: 'The calculated semantic version (e.g., 1.0.0 or 1.0.0-pre.0)'
-    value: ${{ steps.autoversion.outputs.version }}
+    value: ${{ steps.autoversion.outputs.semver }}
+  semverWithPrefix:
+    description: 'The calculated semantic version with v prefix (e.g., v1.0.0 or v1.0.0-pre.0)'
+    value: ${{ steps.autoversion.outputs.semverWithPrefix }}
+  pep440:
+    description: 'The calculated PEP 440 version (e.g., 1.0.0 or 1.0.0a0)'
+    value: ${{ steps.autoversion.outputs.pep440 }}
+  pep440WithPrefix:
+    description: 'The calculated PEP 440 version with v prefix (e.g., v1.0.0 or v1.0.0a0)'
+    value: ${{ steps.autoversion.outputs.pep440WithPrefix }}
   major:
     description: 'The major version number (e.g., 1)'
     value: ${{ steps.autoversion.outputs.major }}
@@ -37,12 +46,9 @@ outputs:
   patch:
     description: 'The patch version number (e.g., 0)'
     value: ${{ steps.autoversion.outputs.patch }}
-  prerelease:
-    description: 'The prerelease identifier if present (e.g., pre.0 or feature-branch.1)'
-    value: ${{ steps.autoversion.outputs.prerelease }}
-  is-prerelease:
-    description: 'Whether this is a prerelease version (true/false)'
-    value: ${{ steps.autoversion.outputs.is-prerelease }}
+  isRelease:
+    description: 'Whether this is a release version (true/false)'
+    value: ${{ steps.autoversion.outputs.isRelease }}
 
 runs:
   using: 'composite'
@@ -136,38 +142,22 @@ runs:
 
         FAIL_ON_ERROR="${{ inputs.fail-on-error }}"
 
-        # Execute autoversion and capture outputs
+        # Execute autoversion and capture JSON output
         if [ "$FAIL_ON_ERROR" = "true" ]; then
-          VERSION=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG)
+          JSON_OUTPUT=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG)
         else
-          VERSION=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG || true)
+          JSON_OUTPUT=$(/tmp/autoversion $CONFIG_ARG $CONFIG_FLAGS_ARG || true)
         fi
 
-        # Parse version components
-        # Format can be: 1.0.0 or 1.0.0-pre.0 or 1.0.0-feature.1
-
-        # Extract base version (before any -)
-        BASE_VERSION="${VERSION%%-*}"
-
-        # Split major.minor.patch
-        IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
-
-        # Check if there's a prerelease part
-        if [[ "$VERSION" == *"-"* ]]; then
-          PRERELEASE="${VERSION#*-}"
-          IS_PRERELEASE="true"
-        else
-          PRERELEASE=""
-          IS_PRERELEASE="false"
-        fi
-
-        # Set GitHub Action outputs
-        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
-        echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
-        echo "patch=$PATCH" >> "$GITHUB_OUTPUT"
-        echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
-        echo "is-prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+        # Parse JSON output and set GitHub Action outputs
+        echo "semver=$(echo "$JSON_OUTPUT" | jq -r '.semver')" >> "$GITHUB_OUTPUT"
+        echo "semverWithPrefix=$(echo "$JSON_OUTPUT" | jq -r '.semverWithPrefix')" >> "$GITHUB_OUTPUT"
+        echo "pep440=$(echo "$JSON_OUTPUT" | jq -r '.pep440')" >> "$GITHUB_OUTPUT"
+        echo "pep440WithPrefix=$(echo "$JSON_OUTPUT" | jq -r '.pep440WithPrefix')" >> "$GITHUB_OUTPUT"
+        echo "major=$(echo "$JSON_OUTPUT" | jq -r '.major')" >> "$GITHUB_OUTPUT"
+        echo "minor=$(echo "$JSON_OUTPUT" | jq -r '.minor')" >> "$GITHUB_OUTPUT"
+        echo "patch=$(echo "$JSON_OUTPUT" | jq -r '.patch')" >> "$GITHUB_OUTPUT"
+        echo "isRelease=$(echo "$JSON_OUTPUT" | jq -r '.isRelease')" >> "$GITHUB_OUTPUT"
 
         # Clean up
         rm -f /tmp/autoversion /tmp/autoversion.tar.gz
