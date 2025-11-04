@@ -67,7 +67,7 @@ runs:
             ARCH="amd64"
             ;;
           aarch64|arm64)
-            ARCH="aarch64"
+            ARCH="arm64"
             ;;
           *)
             echo "Error: Unsupported architecture $ARCH"
